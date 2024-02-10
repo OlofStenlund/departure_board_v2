@@ -3,7 +3,7 @@ import requests
 import pandas as pd
 from datetime import datetime, time, timedelta
 import time
-from main_functions import generate_connetion_url, generate_token, read_token, get_token_expiry, get_gid
+from main_functions import generate_connetion_url, generate_token, read_token, get_token_expiry, get_gid, get_departures_list, get_current_times
 from connection_details import connection_base_url
 
 stop = "BRUNNSBOTORGET"
@@ -19,7 +19,8 @@ connection_url = generate_connetion_url(stop, limit)
 # 5: 
 
 def main():
-    now = datetime.now()
+    now = pd.to_datetime(datetime.now())
+    
     token = read_token()
     if not token:
         token = generate_token()
@@ -38,7 +39,15 @@ def main():
     # Adapt script to token
     bearer_token = f'Bearer {token}'
     connection_headers = {f'Authorization': bearer_token}
-    gid = get_gid(connection_base_url, connection_url, connection_headers)
-    print(gid)
 
+    # Fetch the actual departures:
+    gid = get_gid(connection_base_url, connection_url, connection_headers)
+    get_departures_url = f"/stop-areas/{gid}/departures?limit=10"
+    departures_response = requests.get(f"{connection_base_url}{get_departures_url}", headers=connection_headers)
+    departures_data = departures_response.json()
+    departures = get_departures_list(departures_data, now)
+    current_time = get_current_times(now)
+    return departures, current_time
+
+    
 main()
