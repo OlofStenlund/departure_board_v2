@@ -1,3 +1,4 @@
 /*.txt
 account_details.py
-testfile.ipynb
+tests.ipynb
+.env

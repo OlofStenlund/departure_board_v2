@@ -1,53 +1,75 @@
-import python_jwt as jwt
+from dotenv import load_dotenv
+import os
 import requests
+import json
+from datetime import datetime, timedelta, time
+from time import sleep
 import pandas as pd
-from datetime import datetime, time, timedelta
-import time
-from main_functions import generate_connetion_url, generate_token, read_token, get_token_expiry, get_gid, get_departures_list, get_current_times
-from connection_details import connection_base_url
+import jwt
 
-stop = "BRUNNSBOTORGET"
-limit = 15
+from token_handling import *
+from env_handling import *
+from departure_requests import *
 
-connection_url = generate_connetion_url(stop, limit)
+load_dotenv()
 
-# Anatomy of main():
-# 1: Generate token if not exists
-# 2: Get time for token validity. If <= 3 sec, get new token
-# 3: Get GID byr sendina  request bearing bearer_token and connection_header
-# 4: Get departuers based on GID (station ID)
-# 5: 
+TOKEN_GENERATION_BASE_URL = os.getenv("TOKEN_GENERATION_BASE_URL")
+TOKEN_GENERATION_HEADERS_STR = os.getenv("TOKEN_GENERATION_HEADERS")
+TOKEN_GENERATION_HEADERS = json.loads(TOKEN_GENERATION_HEADERS_STR)
+SECRET = os.getenv("SECRET")
+TOKEN = os.getenv("TOKEN")
 
-def main():
-    now = pd.to_datetime(datetime.now())
+
+# Global variables
+env_path = '.env'
+stop = "Valand"
+gid_generation_ext_url = f"/locations/by-text?q={stop}&limit=1&offset=0"
+gid = get_gid(base_url=connection_base_url, url=gid_generation_ext_url, headers=headers)
+print(gid)
+
+
+
+
+# Get departures
+# limit = 2
+# get_departures_url = f"/stop-areas/{gid}/departures?limit={limit}"
+
+decoded_token = decode_token(TOKEN)
+token_validity_seconds = get_token_expiry(decoded_token)
+print(token_validity_seconds)
+
+# if token_validity_seconds > 3:
+#     print("valid")
     
-    token = read_token()
-    if not token:
-        token = generate_token()
-    exp = get_token_expiry(token)
-    valid_time = (exp - now).total_seconds()
-    
-    if valid_time <= 3:
-        print("New token needed. Stand by...")
-        time.sleep(4)
-        token = generate_token()
-    elif valid_time > 3:
-        pass
-    else: 
-        ValueError
+# elif token_validity_seconds <= 3:
+#     sleep(4)
+#     print("invlaid")
 
-    # Adapt script to token
-    bearer_token = f'Bearer {token}'
-    connection_headers = {f'Authorization': bearer_token}
+# print(connection_url_1)
 
-    # Fetch the actual departures:
-    gid = get_gid(connection_base_url, connection_url, connection_headers)
-    get_departures_url = f"/stop-areas/{gid}/departures?limit=10"
-    departures_response = requests.get(f"{connection_base_url}{get_departures_url}", headers=connection_headers)
-    departures_data = departures_response.json()
-    departures = get_departures_list(departures_data, now)
-    current_time = get_current_times(now)
-    return departures, current_time
 
-    
-main()
+## RELOAD ENV VARS 
+
+# def reload_env(env_path):
+#     # Clear current environment variables loaded from .env
+#     for key in read_env_vars(env_path).keys():
+#         os.environ.pop(key, None)
+#     # Load the environment variables from the .env file
+#     load_dotenv(env_path)
+
+
+# # Read all variables, update TOKEN to new token
+# # Reload envorinment and read in the new token as TOKEN
+# # Before this can be used, we need to check if the token in vaid or not. 
+# # If not, get a new token and update.
+# # If valid, pass
+# all_vars = read_env_vars(env_path)
+# updated_vars = set_new_token_var(all_vars, TOKEN)
+# print(updated_vars)
+
+# if updated_vars:
+#     update_token_var(env_path, updated_vars)
+# # reload_env(env_path)
+# # TOKEN = os.getenv("TOKEN")
+# # print(TOKEN)
+
