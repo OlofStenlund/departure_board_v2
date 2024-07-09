@@ -11,6 +11,6 @@ app = FastAPI()
 
 
 app.get("/")
-def get(rewuest: Request):
+def get(request: Request):
     deps, current_time = main()
     year, day, month, hour, minute = []
