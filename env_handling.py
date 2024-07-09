@@ -1,3 +1,7 @@
+import os
+from dotenv import load_dotenv
+
+
 def read_env_vars(env_path):
     with open(env_path, 'r') as file:
         lines = file.readlines()
@@ -9,9 +13,6 @@ def read_env_vars(env_path):
             env_vars[key] = value
     return env_vars
 
-def add_token_to_env(env_path, key, value):
-    with open(env_path, 'a') as file:
-        file.write(f"{key} = {value}\n")
 
 def set_new_token_var(vars, new_token):
     """
@@ -38,3 +39,10 @@ def update_token_var(env_path, env_vars):
 
 
 
+
+def reload_env(env_path):
+    # Clear current environment variables loaded from .env
+    for key in read_env_vars(env_path).keys():
+        os.environ.pop(key, None)
+    # Load the environment variables from the .env file
+    load_dotenv(env_path)

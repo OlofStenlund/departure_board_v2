@@ -11,7 +11,23 @@ from token_handling import *
 from env_handling import *
 from departure_requests import *
 
-load_dotenv()
+
+### Since sone env-variables are loaded in dependancies, we reset the env-variables dirst thing.
+### This is because the TOKEN needs to be checked and updated
+
+env_path = '.env'
+
+def reload_env(env_path):
+    # Clear current environment variables loaded from .env
+    for key in read_env_vars(env_path).keys():
+        os.environ.pop(key, None)
+    # Load the environment variables from the .env file
+    load_dotenv(env_path)
+
+
+reload_env(env_path)
+
+### Now the env-variables have been reset, we import them
 
 TOKEN_GENERATION_BASE_URL = os.getenv("TOKEN_GENERATION_BASE_URL")
 TOKEN_GENERATION_HEADERS_STR = os.getenv("TOKEN_GENERATION_HEADERS")
@@ -20,12 +36,49 @@ SECRET = os.getenv("SECRET")
 TOKEN = os.getenv("TOKEN")
 
 
-# Global variables
-env_path = '.env'
-stop = "Valand"
+### Declare global variables
+# Set these variables to get the GID-code for your desired stop
+stop = "Brunnsbotorget"
+municipality = "Göteborg"
 gid_generation_ext_url = f"/locations/by-text?q={stop}&limit=1&offset=0"
-gid = get_gid(base_url=connection_base_url, url=gid_generation_ext_url, headers=headers)
-print(gid)
+
+# Set the variables for the departures
+limit = 1
+api_url = "https://ext-api.vasttrafik.se/pr/v4"
+request_headers = {"Authorization": f"Bearer {TOKEN}"}
+
+
+decoded_token = decode_token(TOKEN)
+expiry_seconds = get_token_expiry(decoded_token)
+
+if not check_token_validity(expiry_seconds=expiry_seconds):
+    print("Token not valid")
+    generate_new_token(env_path, api_url, TOKEN_GENERATION_HEADERS)
+if check_token_validity(expiry_seconds=expiry_seconds):
+    print("Token valid")
+
+
+gid = get_gid(
+    request_headers=request_headers, 
+    stop=stop, 
+    municipality=municipality,
+    api_url=api_url
+    ) 
+
+
+
+data = get_departures_data(
+    gid=gid, 
+    limit=limit, 
+    connection_url=api_url, 
+    request_headers=request_headers
+    )
+
+print(data)
+# Check if token is valid
+# If not, get a new one
+
+
 
 
 
@@ -34,9 +87,7 @@ print(gid)
 # limit = 2
 # get_departures_url = f"/stop-areas/{gid}/departures?limit={limit}"
 
-decoded_token = decode_token(TOKEN)
-token_validity_seconds = get_token_expiry(decoded_token)
-print(token_validity_seconds)
+# print(token_validity_seconds)
 
 # if token_validity_seconds > 3:
 #     print("valid")
