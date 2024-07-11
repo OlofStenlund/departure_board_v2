@@ -1,6 +1,8 @@
 import requests
 from dotenv import load_dotenv
 import os
+import pandas as pd
+
 
 load_dotenv()
 
@@ -54,3 +56,31 @@ def get_departures_data(gid: str | int, limit: int, connection_url: str, request
         )
     res = departures_response.json()['results']
     return res
+
+
+def prepare_departures_data(data: list, limit: int) -> list:
+    deps_list = []
+    for i in range(0, limit):
+        sj = data[i]['serviceJourney']
+        direction = sj["direction"]
+        destination = sj["directionDetails"]["shortDirection"]
+        short_name = sj["line"]["shortName"]
+        mode = sj["line"]["transportMode"]
+        wheelchair_acc = sj["line"]["isWheelchairAccessible"]
+
+        planned_departure = pd.to_datetime(data[i]["plannedTime"])
+        est_departure = pd.to_datetime(data[i]["estimatedOtherwisePlannedTime"])
+        cancelled = data[i]["isCancelled"]
+
+        deps_list.append(
+            {'Direction': direction, 
+            'Destination': destination, 
+            'Short_name': short_name,
+            'Mode': mode,
+            'Wheelchair_acc': wheelchair_acc,
+            'Planned_departure': planned_departure,
+            'Est_departure': est_departure,
+            'Cancelled': cancelled}
+            )
+    
+    return deps_list

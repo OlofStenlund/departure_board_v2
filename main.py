@@ -12,19 +12,10 @@ from env_handling import *
 from departure_requests import *
 
 
-### Since sone env-variables are loaded in dependancies, we reset the env-variables dirst thing.
+### Since some env-variables are loaded in dependancies, we reset the env-variables first thing.
 ### This is because the TOKEN needs to be checked and updated
 
 env_path = '.env'
-
-def reload_env(env_path):
-    # Clear current environment variables loaded from .env
-    for key in read_env_vars(env_path).keys():
-        os.environ.pop(key, None)
-    # Load the environment variables from the .env file
-    load_dotenv(env_path)
-
-
 reload_env(env_path)
 
 ### Now the env-variables have been reset, we import them
@@ -53,9 +44,12 @@ expiry_seconds = get_token_expiry(decoded_token)
 
 if not check_token_validity(expiry_seconds=expiry_seconds):
     print("Token not valid")
-    generate_new_token(env_path, api_url, TOKEN_GENERATION_HEADERS)
+    generate_new_token(env_path, TOKEN_GENERATION_BASE_URL, TOKEN_GENERATION_HEADERS)
+    reload_env(env_path) # In case of new token, don't forget to reload envs
 if check_token_validity(expiry_seconds=expiry_seconds):
     print("Token valid")
+
+
 
 
 gid = get_gid(

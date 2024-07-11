@@ -68,8 +68,9 @@ def generate_new_token(env_path: str,  base_url: str, headers: dict):
     base_url: Specifies the url to which the POST-request should be sent.
     headers: TOKEN_GENERATION_HEADERS
     """
+    print("Getting new token")
     sleep(4)
-    new_token = request_token(base_url=base_url, headers=headers)
+    new_token = request_token(base_url=base_url, token_generation_headers=headers)
     env_vars = read_env_vars(
         env_path=env_path
         )
@@ -81,3 +82,4 @@ def generate_new_token(env_path: str,  base_url: str, headers: dict):
         env_path = env_path,
         env_vars = env_vars
     )
+    print("New token aquired")
