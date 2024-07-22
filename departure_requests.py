@@ -2,7 +2,8 @@ import requests
 from dotenv import load_dotenv
 import os
 import pandas as pd
-
+from datetime import datetime
+import math 
 
 load_dotenv()
 
@@ -58,8 +59,26 @@ def get_departures_data(gid: str | int, limit: int, connection_url: str, request
     return res
 
 
+
+### The returned dictionary needs to contain;
+# bus number
+# direction
+# planned departure
+# est departure
+# time until departure
+
+# For the new stuff, the HTML-template needs to be ammended, 
+# so raincheck on that.
+
+# Time until departure needs to be calculated somehow.
+# in the previous verison, a DT-object was created by extracting
+# year, month, day, and so on and coverting them into INT and
+# using these ints as arguments when creating the DT-object.
+# Can this be done in a better way?
+
 def prepare_departures_data(data: list, limit: int) -> list:
     deps_list = []
+    now = datetime.now()
     for i in range(0, limit):
         sj = data[i]['serviceJourney']
         direction = sj["direction"]
@@ -67,20 +86,24 @@ def prepare_departures_data(data: list, limit: int) -> list:
         short_name = sj["line"]["shortName"]
         mode = sj["line"]["transportMode"]
         wheelchair_acc = sj["line"]["isWheelchairAccessible"]
-
-        planned_departure = pd.to_datetime(data[i]["plannedTime"])
-        est_departure = pd.to_datetime(data[i]["estimatedOtherwisePlannedTime"])
         cancelled = data[i]["isCancelled"]
 
+        planned_departure = pd.to_datetime(data[i]["plannedTime"]).tz_localize(None)
+        est_departure = pd.to_datetime(data[i]["estimatedOtherwisePlannedTime"]).tz_localize(None)
+        min_until_dep = math.floor(((est_departure - now).total_seconds()/60))
+
         deps_list.append(
-            {'Direction': direction, 
-            'Destination': destination, 
-            'Short_name': short_name,
-            'Mode': mode,
-            'Wheelchair_acc': wheelchair_acc,
-            'Planned_departure': planned_departure,
-            'Est_departure': est_departure,
-            'Cancelled': cancelled}
+            {'Short_name': short_name,
+            'Direction': direction, 
+            'Planned_departure_str': planned_departure.strftime("%H:%M"),
+            'Est_departure_str': est_departure.strftime("%H:%M"),
+            'Leaves_in': min_until_dep
+            # 'Planned_departure': planned_departure,
+            # 'Destination': destination, 
+            # 'Mode': mode,
+            # 'Wheelchair_acc': wheelchair_acc,
+            # 'Cancelled': cancelled
+            }
             )
     
     return deps_list

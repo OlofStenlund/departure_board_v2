@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Departures</title>
+    <style>
+      body {
+        background-color: rgb(31, 32, 33);
+        color: rgb(156, 133, 42);
+      }
+
+      .main_title {
+        background-color: rgb(31, 32, 33);
+        color: #d9d9d9;
+        padding: 5px;
+        font-family: Arial, Helvetica, sans-serif;
+        width: fit-content;
+        margin: 0 auto;
+      }
+      .header_box {
+        background-color: #558ded;
+        color: rgb(248, 234, 179);
+        padding: 10px;
+        margin: 1px 0;
+        border-radius: 5px;
+        display: flex; /* Use flex display to arrange items in a row */
+        align-items: stretch; /* Align items vertically in the center */
+        margin-left: -1px;
+      }
+
+      .box1 {
+        background-color: #0851cf;
+        color: rgb(156, 133, 42);
+        padding: 10px;
+        margin: 1px 0;
+        border-radius: 5px;
+        display: flex; /* Use flex display to arrange items in a row */
+        align-items: stretch; /* Align items vertically in the center */
+        margin-left: -1px;
+      }
+
+      .box2 {
+        background-color: #486fab;
+        color: rgb(156, 133, 42);
+        padding: 10px;
+        margin: 1px 0;
+        border-radius: 5px;
+        display: flex; /* Use flex display to arrange items in a row */
+        align-items: stretch; /* Align items vertically in the center */
+        margin-left: -1px;
+      }
+
+      .box-item {
+        padding: 0px;
+        color: rgb(238, 251, 56);
+        border-left: none;
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        flex-grow: 200;
+        width: 20px;
+        font-size: 25px;
+      }
+
+      .box-item2 {
+        padding: 0px;
+        border-left: none;
+        position: relative;
+        align-items: stretch;
+        flex-grow: 200;
+        width: 20px;
+        font-size: 25px;
+        font-family: Impact, "Arial Narrow Bold", sans-serif;
+      }
+
+      .box-item:first-child {
+        /* margin-left: 0; Remove left margin for the first value */
+        border-left: none; /* Remove left border for the first value */
+        /* width: 20px; */
+        /* align-items: stretch; */
+        flex-grow: 200;
+        /* font-size: 30px; */
+        /* left: 0px; */
+        /* right: 100px; */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      <div class="main_title">
+        Avgångar från {{ departure_stop }} - {{ day_no }} {{ month_name }}, {{
+        year }}. Klockan är {{ hour }}:{{ minute }}
+      </div>
+    </h1>
+
+    <div class="header_box">
+      {% for title in titles_list %}
+      <div
+        class="box-item2"
+        style="margin-left: 
+            {% if loop.index0 == 3 or loop.index0 == 4 %}{{ loop.index0 * 50 }}px;
+                {% else %}{{ loop.index0 * 70 + 10 }}px;{% endif %}"
+      >
+        {% if title is iterable and title is not string %} {{ title|join(", ")
+        }} {% else %} {{ title }} {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% for dictionary in my_list[:] %}
+    <div class="box1">
+      {% for value in dictionary.values() %}
+      <div
+        class="box-item"
+        style="margin-left: 
+                {% if loop.index0 == 3 or loop.index0 == 4 %}{{ loop.index0 * 50 }}px;
+                {% else %}{{ loop.index0 * 70 + 10 }}px;{% endif %}"
+      >
+        {% if value is iterable and value is not string %} {{ value|join(", ")
+        }} {% else %} {{ value }} {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </body>
+</html>
