@@ -13,11 +13,15 @@ def decode_token(token) -> dict:
     """
     Takes a json web token and decodes it.
     """
-    decoded_token = jwt.decode(
-        jwt=token, 
-        options={"verify_signature": False}
-        )
-    return decoded_token
+    try:
+        decoded_token = jwt.decode(
+            jwt=token, 
+            options={"verify_signature": False}
+            )
+        return decoded_token
+    except:
+        print("Token-sting not decoadable.")
+        return False
 
 
 def get_token_expiry(decoded_token: dict) -> float:
@@ -25,16 +29,19 @@ def get_token_expiry(decoded_token: dict) -> float:
     Takes a decoded json web token in the form of a dict, 
     and extracts the validity in seconds and microseconds.
     """
-    expiry_string = decoded_token['exp']
-    start = datetime(1970, 1, 1)
-    token_expiry = (
-        start + timedelta(0, expiry_string)
-        )
-    now = datetime.now()
-    valid_seconds = (
-        (token_expiry - now).total_seconds()
-        )
-    return valid_seconds
+    try:
+        expiry_string = decoded_token['exp']
+        start = datetime(1970, 1, 1)
+        token_expiry = (
+            start + timedelta(0, expiry_string)
+            )
+        now = datetime.now()
+        valid_seconds = (
+            (token_expiry - now).total_seconds()
+            )
+        return valid_seconds
+    except:
+        return 0
 
 
 def request_token(base_url: str, token_generation_headers: dict) -> str:
@@ -54,9 +61,13 @@ def request_token(base_url: str, token_generation_headers: dict) -> str:
 
 
 def check_token_validity(expiry_seconds: int | float) -> bool:
-    if expiry_seconds > 3:
-        return True
-    elif expiry_seconds <= 3:
+    try:
+        if expiry_seconds > 3:
+            return True
+    # elif expiry_seconds <= 3:
+        else:
+            return False
+    except:
         return False
 
 

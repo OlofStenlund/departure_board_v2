@@ -91,6 +91,8 @@ def prepare_departures_data(data: list, limit: int) -> list:
         planned_departure = pd.to_datetime(data[i]["plannedTime"]).tz_localize(None)
         est_departure = pd.to_datetime(data[i]["estimatedOtherwisePlannedTime"]).tz_localize(None)
         min_until_dep = math.floor(((est_departure - now).total_seconds()/60))
+        if min_until_dep < 1:
+            min_until_dep = "Nu"
 
         deps_list.append(
             {'Short_name': short_name,

@@ -11,7 +11,7 @@ This project uses handling of sensitive information using the python-dotenv pack
 More info can be found here: https://pypi.org/project/python-dotenv/
 
 TODO:
-1: Create automatic updating
+~~1: Create automatic updating~~
 2: Add features such as "Läge" adn "Handikapsanpassad"
 3: add colour coding to routes
 
