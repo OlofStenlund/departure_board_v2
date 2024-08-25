@@ -11,23 +11,23 @@ This project uses handling of sensitive information using the python-dotenv pack
 More info can be found here: https://pypi.org/project/python-dotenv/
 
 TODO:
-~~1: Create automatic updating~~
-2: Add features such as "Läge" adn "Handikapsanpassad"
-3: add colour coding to routes
+~~1: Create automatic updating~~<p><p>
+2: Add features such as "Läge" adn "Handikapsanpassad"<p><p>
+3: add colour coding to routes<p><p>
 
 Contents:<p>
 1: api.py<p>
-Creates the app that allows you to host using eg. Uvicorn<p><p>
+Creates the app that allows you to host using eg. Uvicorn<p>
 2: departure_requests<p>
-Contains the functions used to access information about stops and departures<p><p>
+Contains the functions used to access information about stops and departures<p>
 3: env_handling.py<p>
-Contains functions handling envorinment variables using the python-dotenv package.<p><p>
+Contains functions handling envorinment variables using the python-dotenv package.<p>
 4: token_handling.py<p>
-Contains functions handling the access-token needed. A token is valid for 24 hours, and these functions make sure the token is valid, and requests a new one if not.<p><p>
+Contains functions handling the access-token needed. A token is valid for 24 hours, and these functions make sure the token is valid, and requests a new one if not.<p>
 5: main.py<p>
-The main program that is run when the app in api.py is run.
+The main program that is run when the app in api.py is run.<p>
 6: template.html<p>
-HTML-template for frontend<p><p>
+HTML-template for frontend<p>
 
 Gitignore:<p>
 1: .env<p>
