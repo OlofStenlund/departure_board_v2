@@ -10,11 +10,12 @@ You must have a Västtrafik developer account. Register for free here: https://d
 This project uses handling of sensitive information using the python-dotenv package.
 More info can be found here: https://pypi.org/project/python-dotenv/
 
-TODO:
+TODO:<p>
 ~~1: Create automatic updating~~<p><p>
 2: Add features such as "Läge" adn "Handikapsanpassad"<p><p>
 3: add colour coding to routes<p><p>
 
+<p>
 Contents:<p>
 1: api.py<p>
 Creates the app that allows you to host using eg. Uvicorn<p>
