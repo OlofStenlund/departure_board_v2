@@ -5,7 +5,8 @@ import pandas as pd
 from datetime import datetime, time, timedelta
 import time
 from fastapi.templating import Jinja2Templates
-from main import main, stop
+from main import main
+from typing import Optional
 
 import asyncio
 
@@ -14,15 +15,12 @@ templates = Jinja2Templates(directory=".")
 
 app = FastAPI()
 
-
-
-
 list_of_titles = ["Linje", "Mot", "Planerad Avgång", "Avgång", "Avgår Om"]
 
 
-@app.get("/")
-def get(request: Request):
-    my_list, curr_time = main()
+@app.get("/{stop}")
+def get(request: Request, stop: str, municipality: Optional[str] = "Göteborg"):
+    my_list, curr_time = main(stop=stop, municipality=municipality)
     year = curr_time["year"]
     month = curr_time["month_no"]
     month_name = curr_time["month_name"]
@@ -46,8 +44,6 @@ def get(request: Request):
             "minute": minute
         }
     )
-
-
 
 
 

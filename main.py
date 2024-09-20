@@ -11,14 +11,14 @@ from token_handling import *
 from env_handling import *
 from departure_requests import *
 
-stop = "Brunnsbotorget"
+# stop = "Brunnsbotorget"
 ### Since some env-variables are loaded in dependancies, we reset the env-variables first thing.
 ### This is because the TOKEN needs to be checked and updated
 
-def main():
+def main(stop: str, municipality: str):
     env_path = '.env'
     reload_env(env_path)
-
+    print("main streated")
     ### Now the env-variables have been reset, we import them
 
     TOKEN_GENERATION_BASE_URL = os.getenv("TOKEN_GENERATION_BASE_URL")
@@ -30,9 +30,10 @@ def main():
 
     ### Declare global variables
     # Set these variables to get the GID-code for your desired stop
-    stop = "Brunnsbotorget"
-    municipality = "Göteborg"
+    # stop = "Brunnsbotorget"
+    # municipality = "Göteborg"
     gid_generation_ext_url = f"/locations/by-text?q={stop}&limit=1&offset=0"
+
 
     # Set the variables for the departures
     limit = 10
@@ -61,6 +62,10 @@ def main():
     SECRET = os.getenv("SECRET")
     TOKEN = os.getenv("TOKEN")
 
+    #reses headers in case new token was aquired.
+    request_headers = {"Authorization": f"Bearer {TOKEN}"}
+
+    print(stop, municipality)
 
     gid = get_gid(
         request_headers=request_headers, 
@@ -108,3 +113,6 @@ def main():
     times = get_current_times(datetime.now())
 
     return prep_data, times
+
+# data, times = main(stop="Valand")
+# print(data)

@@ -23,6 +23,7 @@ def get_gid(request_headers: dict, stop: str, municipality: str, api_url: str) -
     """
 
     gid_generation_ext_url = f"/locations/by-text?q={stop}&limit=10&offset=0"
+    print(gid_generation_ext_url)
     resp = requests.get(
         f"{api_url}{gid_generation_ext_url}", 
         headers=request_headers
@@ -35,9 +36,11 @@ def get_gid(request_headers: dict, stop: str, municipality: str, api_url: str) -
         if data['results'][i]['locationType'] == 'stoparea':
             actual_stops.append(data['results'][i])
     for i in actual_stops:
+        print(i)
         try:
-            if (f'{stop}, {municipality}') in i['name']:
+            if (f'{stop.capitalize()}, {municipality.capitalize()}') in i['name']:
                 gid = i['gid']
+                print(gid)
             return gid
         except KeyError as ke:
             raise KeyError("Invalid input: GID could not be found for that stop") from ke
@@ -99,7 +102,8 @@ def prepare_departures_data(data: list, limit: int) -> list:
             'Direction': direction, 
             'Planned_departure_str': planned_departure.strftime("%H:%M"),
             'Est_departure_str': est_departure.strftime("%H:%M"),
-            'Leaves_in': min_until_dep
+            'Leaves_in': min_until_dep,
+            # "colour": "#FF0000"
             # 'Planned_departure': planned_departure,
             # 'Destination': destination, 
             # 'Mode': mode,
