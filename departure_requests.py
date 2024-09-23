@@ -22,8 +22,8 @@ def get_gid(request_headers: dict, stop: str, municipality: str, api_url: str) -
     api_url: str
     """
 
+
     gid_generation_ext_url = f"/locations/by-text?q={stop}&limit=10&offset=0"
-    print(gid_generation_ext_url)
     resp = requests.get(
         f"{api_url}{gid_generation_ext_url}", 
         headers=request_headers
@@ -34,16 +34,15 @@ def get_gid(request_headers: dict, stop: str, municipality: str, api_url: str) -
     actual_stops = []
     for i in range(0, len(data['results'])):
         if data['results'][i]['locationType'] == 'stoparea':
-            actual_stops.append(data['results'][i])
+            actual_stops.append(data['results'][i])     
     for i in actual_stops:
-        print(i)
-        try:
-            if (f'{stop.capitalize()}, {municipality.capitalize()}') in i['name']:
-                gid = i['gid']
-                print(gid)
-            return gid
-        except KeyError as ke:
-            raise KeyError("Invalid input: GID could not be found for that stop") from ke
+        if (f'{stop.capitalize()}, {municipality.capitalize()}') in i['name']:
+            gid = i['gid']
+            print(f"GID: {gid}")
+        else:
+            pass
+    return gid
+
 
 
 
@@ -82,11 +81,14 @@ def get_departures_data(gid: str | int, limit: int, connection_url: str, request
 def prepare_departures_data(data: list, limit: int) -> list:
     deps_list = []
     now = datetime.now()
-    for i in range(0, limit):
+    for i in range(0, len(data)):
         sj = data[i]['serviceJourney']
         direction = sj["direction"]
         destination = sj["directionDetails"]["shortDirection"]
         short_name = sj["line"]["shortName"]
+        background_colour = sj["line"]["backgroundColor"]
+        border_colour = sj["line"]["borderColor"]
+        text_colour = sj["line"]["foregroundColor"]
         mode = sj["line"]["transportMode"]
         wheelchair_acc = sj["line"]["isWheelchairAccessible"]
         cancelled = data[i]["isCancelled"]
@@ -103,7 +105,10 @@ def prepare_departures_data(data: list, limit: int) -> list:
             'Planned_departure_str': planned_departure.strftime("%H:%M"),
             'Est_departure_str': est_departure.strftime("%H:%M"),
             'Leaves_in': min_until_dep,
-            # "colour": "#FF0000"
+            #Following is metadata, not meant top be displayed
+            "colour": background_colour,
+            "text_colour": text_colour,
+            "border_colour": border_colour
             # 'Planned_departure': planned_departure,
             # 'Destination': destination, 
             # 'Mode': mode,
