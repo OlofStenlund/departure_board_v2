@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Departures</title>
+    <style>
+      body {
+        background-color: rgb(31, 32, 33);
+        color: rgb(156, 133, 42);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .main-title {
+        background-color: rgb(31, 32, 33);
+        color: #ffffff;
+        width: 20vw;
+        margin: 0 auto;
+        grid-column: span 3;
+      }
+
+      .main-title-box {
+        background-color: rgb(31, 32, 33);
+        color: rgb(255, 255, 255);
+        /* padding: 5px; */
+        margin: 1px 0;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        /* border-radius: 5px; */
+        text-align: center;
+        font-size: 9vh;
+        align-items: center;
+      }
+
+      .departure-stop {
+        font-size: 10vh;
+      }
+
+      /* Styling for the input box and button */
+      .input-box {
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-gap: 1vw;
+        align-items: top;
+        justify-content: top;
+        margin: 0 auto;
+        height: 3vh;
+        grid-column: span 1;
+      }
+
+      input[type="text"] {
+        font-size: 1.5vh;
+        padding: 1px;
+        width: 9vw;
+        height: 3vh;
+        /* margin-right: 5px;
+        border-radius: 5px;  */
+        border: 1px solid #fff;
+        color: rgb(255, 255, 255);
+      }
+
+      input[type="submit"] {
+        font-size: 1.5vh;
+        padding: 1px;
+        width: 9vw;
+        margin-right: 5px;
+        border-radius: 5px;
+        height: 3vh;
+        border: 1px solid #fff;
+        background-color: #1768f5;
+        color: white;
+        cursor: pointer;
+      }
+
+      .outer-input-box {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        width: 100%; /* Fills the entire column width */
+        height: 100%; /* Fills the entire column height */
+        display: block; /* Ensures it's treated as a block-level element */
+        grid-column: 1 / span 1; /* Stays in the first column */
+      }
+
+      .stop-input-box {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        width: 100%; /* Fills the available width */
+        height: 50%; /* Fills the available height of the row */
+        box-sizing: border-box;
+        margin-left: 0.3vw;
+      }
+
+      .municipality-select-drop-down {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        width: 100%; /* Fills the available width */
+        height: 50%; /* Fills the available height of the row */
+        box-sizing: border-box;
+        margin-left: 0.3vw;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      <div class="main-title-box">
+        <div class="outer-input-box">
+          <div class="stop-input-box">
+            <form id="updateForm" onsubmit="updateUrl(event)">
+              <input
+                type="text"
+                id="departureStop"
+                placeholder="Enter stop"
+                required/>
+              <input type="submit" value="Hämta" /></div>
+          </form>
+          <div class="municipality-select-drop-down">
+            <select id="municipalitySelect" type="text" onchange="updateMunicipality()">
+              <!-- <input type = "text"></input> -->
+              <option value="" disabled>Select municipality</option>
+              <option value="Göteborg" selected>Göteborg</option>
+              <option value="Ale">Ale</option>
+              <option value="Alingsås">Alingsås</option>
+              <option value="Bengtsfors">Bengtsfors</option>
+              <option value="Bollebygd">Bollebygd</option>
+              <option value="Borås">Borås</option>
+              <option value="Dals-Ed">Dals-Ed</option>
+              <option value="Essunga">Essunga</option>
+              <option value="Falköping">Falköping</option>
+              <option value="Färgelanda">Färgelanda</option>
+              <option value="Gullspång">Gullspång</option>
+              <option value="Götene">Götene</option>
+              <option value="Herrljunga">Herrljunga</option>
+              <option value="Hjo">Hjo</option>
+              <option value="Härryda">Härryda</option>
+              <option value="Karlsborg">Karlsborg</option>
+              <option value="Kungsbacka">Kungsbacka</option>
+              <option value="Kungälv">Kungälv</option>
+              <option value="Lerum">Lerum</option>
+              <option value="Lidköping">Lidköping</option>
+              <option value="Lilla Edet">Lilla Edet</option>
+              <option value="Lysekil">Lysekil</option>
+              <option value="Mariestad">Mariestad</option>
+              <option value="Mark">Mark</option>
+              <option value="Mellerud">Mellerud</option>
+              <option value="Munkedal">Munkedal</option>
+              <option value="Mölndal">Mölndal</option>
+              <option value="Orust">Orust</option>
+              <option value="Partille">Partille</option>
+              <option value="Skara">Skara</option>
+              <option value="Sotenäs">Sotenäs</option>
+              <option value="Stenungsund">Stenungsund</option>
+              <option value="Strömstad">Strömstad</option>
+              <option value="Svenljunga">Svenljunga</option>
+              <option value="Tibro">Tibro</option>
+              <option value="Tidaholm">Tidaholm</option>
+              <option value="Tjörn">Tjörn</option>
+              <option value="Tranemo">Tranemo</option>
+              <option value="Trollhättan">Trollhättan</option>
+              <option value="Töreboda">Töreboda</option>
+              <option value="Uddevalla">Uddevalla</option>
+              <option value="Ulricehamn">Ulricehamn</option>
+              <option value="Vara">Vara</option>
+              <option value="Vårgårda">Vårgårda</option>
+              <option value="Vänersborg">Vänersborg</option>
+              <option value="Åmål">Åmål</option>
+              <option value="Öckerö">Öckerö</option>
+            </select>
+          </div>
+          </select>
+        </div>
+        <div class="departure-stop">Välj hållplats</div>
+      </div>
+      <script>
+        // Function to update the URL with the user input
+        function updateUrl(event) {
+          event.preventDefault();
+          const departureStop = document.getElementById("departureStop").value;
+          const municipality =
+            document.getElementById("municipalitySelect").value;
+          const baseUrl = window.location.origin; // Get base URL without query params
+          const newUrl = `${baseUrl}/${encodeURIComponent(
+            departureStop
+          )}?municipality=${encodeURIComponent(municipality)}`;
+          window.location.href = newUrl; // Redirect to the new URL
+        }
+      </script>
+    </h1>
+  </body>
+</html>

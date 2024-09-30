@@ -1,25 +1,22 @@
-from fastapi import FastAPI, Request, Depends
-import jwt
-import requests
-import pandas as pd
-from datetime import datetime, time, timedelta
-import time
+from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from main import main
-from typing import Optional
-
-import asyncio
 
 
 templates = Jinja2Templates(directory=".")
-
 app = FastAPI()
+list_of_titles = ["Linje", "Mot", "Planerad Avgång", "Avgång", "Avgår"]
 
-list_of_titles = ["Linje", "Mot", "Planerad Avgång", "Avgång", "Avgår Om"]
 
+@app.get("/")
+def get(request: Request):
+    return templates.TemplateResponse(
+        name="landing_page.html", 
+        context={"request": request}
+    )
 
 @app.get("/{stop}")
-def get(request: Request, stop: str, municipality: Optional[str] = "Göteborg"):
+def get(request: Request, stop: str, municipality: str):
     my_list, curr_time = main(stop=stop, municipality=municipality)
     year = curr_time["year"]
     month = curr_time["month_no"]
@@ -29,12 +26,12 @@ def get(request: Request, stop: str, municipality: Optional[str] = "Göteborg"):
     hour = curr_time["hour"]
     minute = curr_time["minute"]
     return templates.TemplateResponse(
-        "template.html", 
+        "board_template.html", 
         {
             "request": request, 
             "my_list": my_list, 
             "titles_list": list_of_titles, 
-            "departure_stop": stop, 
+            "departure_stop": stop.title(), 
             "year": year, 
             "month": month, 
             "month_name": month_name,

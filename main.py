@@ -1,87 +1,70 @@
-from dotenv import load_dotenv
-import os
-import requests
 import json
-from datetime import datetime, timedelta, time
-from time import sleep
-import pandas as pd
-import jwt
-
-from token_handling import *
-from env_handling import *
+import os
+from datetime import datetime
 from departure_requests import *
+from env_handling import *
+from token_handling import *
 
-# stop = "Brunnsbotorget"
-### Since some env-variables are loaded in dependancies, we reset the env-variables first thing.
-### This is because the TOKEN needs to be checked and updated
+
 
 def main(stop: str, municipality: str):
+
+    ### Since some env-variables are loaded in dependancies, we reset the env-variables first thing.
+    ### This is because the TOKEN needs to be checked and updated
+
     env_path = '.env'
     reload_env(env_path)
-    print("main streated")
+
     ### Now the env-variables have been reset, we import them
 
     TOKEN_GENERATION_BASE_URL = os.getenv("TOKEN_GENERATION_BASE_URL")
     TOKEN_GENERATION_HEADERS_STR = os.getenv("TOKEN_GENERATION_HEADERS")
     TOKEN_GENERATION_HEADERS = json.loads(TOKEN_GENERATION_HEADERS_STR)
-    SECRET = os.getenv("SECRET")
     TOKEN = os.getenv("TOKEN")
-
-
-    ### Declare global variables
-    # Set these variables to get the GID-code for your desired stop
-    # stop = "Brunnsbotorget"
-    # municipality = "Göteborg"
-    gid_generation_ext_url = f"/locations/by-text?q={stop}&limit=1&offset=0"
-
-
-    # Set the variables for the departures
-    limit = 10
-    api_url = "https://ext-api.vasttrafik.se/pr/v4"
-    request_headers = {"Authorization": f"Bearer {TOKEN}"}
-
-    decoded_token = decode_token(TOKEN)
-    expiry_seconds = get_token_expiry(decoded_token)
-
 
     # Update token if needed
+    decoded_token = decode_token(TOKEN)
+    expiry_seconds = get_token_expiry(decoded_token=decoded_token)
     if not check_token_validity(expiry_seconds=expiry_seconds):
-        print(check_token_validity(expiry_seconds=expiry_seconds))
-        print("Token not valid")
-        generate_new_token(env_path, TOKEN_GENERATION_BASE_URL, TOKEN_GENERATION_HEADERS)
-        # reload_env(env_path) # In case of new token, don't forget to reload envs
-    if check_token_validity(expiry_seconds=expiry_seconds):
-        # print(check_token_validity(expiry_seconds=expiry_seconds))
-        print("Token valid")
+        generate_new_token(
+            env_path=env_path, 
+            url=TOKEN_GENERATION_BASE_URL, 
+            headers=TOKEN_GENERATION_HEADERS
+        )
+
+        # Reaload envs
+        reload_env(env_path=env_path)
+        TOKEN_GENERATION_BASE_URL = os.getenv("TOKEN_GENERATION_BASE_URL")
+        TOKEN_GENERATION_HEADERS_STR = os.getenv("TOKEN_GENERATION_HEADERS")
+        TOKEN_GENERATION_HEADERS = json.loads(TOKEN_GENERATION_HEADERS_STR)
+        TOKEN = os.getenv("TOKEN")
+    else:
+        pass
     
-    # Reaload envs
-    reload_env(env_path=env_path)
-    TOKEN_GENERATION_BASE_URL = os.getenv("TOKEN_GENERATION_BASE_URL")
-    TOKEN_GENERATION_HEADERS_STR = os.getenv("TOKEN_GENERATION_HEADERS")
-    TOKEN_GENERATION_HEADERS = json.loads(TOKEN_GENERATION_HEADERS_STR)
-    SECRET = os.getenv("SECRET")
-    TOKEN = os.getenv("TOKEN")
+    ### Declare global variables
 
-    #reses headers in case new token was aquired.
+    limit = 10 # Number of departures we want to return
+    api_url = "https://ext-api.vasttrafik.se/pr/v4"    
     request_headers = {"Authorization": f"Bearer {TOKEN}"}
-
-    print(stop, municipality)
 
     gid = get_gid(
         request_headers=request_headers, 
-        stop=stop, 
+        stop=stop,
+        limit=limit, 
         municipality=municipality,
-        api_url=api_url
+        url=api_url
         ) 
-
+    
     data = get_departures_data(
         gid=gid, 
         limit=limit, 
-        connection_url=api_url, 
+        url=api_url, 
         request_headers=request_headers
         )
     
-    prep_data = prepare_departures_data(data, limit)
+    prep_data = prepare_departures_data(
+        data=data, 
+        )
     
     def get_current_times(now):
         current_week= now.isocalendar()[1]
@@ -113,6 +96,3 @@ def main(stop: str, municipality: str):
     times = get_current_times(datetime.now())
 
     return prep_data, times
-
-# data, times = main(stop="Valand")
-# print(data)

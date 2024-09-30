@@ -9,7 +9,14 @@ load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
 
-def get_gid(request_headers: dict, stop: str, municipality: str, api_url: str) -> str:
+def get_gid(
+        request_headers: dict, 
+        stop: str, 
+        limit: int, 
+        municipality: str, 
+        url: str
+        ) -> str:
+
     """
     Uses the name of the stop to retrieve the GID-code for the stop.
     This GID-code is used as an ID for the stop when fetching departure data.
@@ -22,10 +29,14 @@ def get_gid(request_headers: dict, stop: str, municipality: str, api_url: str) -
     api_url: str
     """
 
+    if " " in stop:
+        url_adjusted_stop = stop.replace(" ", "%20")
+    else:
+        url_adjusted_stop = stop
 
-    gid_generation_ext_url = f"/locations/by-text?q={stop}&limit=10&offset=0"
+    gid_ext_url = fr"/locations/by-text?q={url_adjusted_stop}&{limit}=10&offset=0"
     resp = requests.get(
-        f"{api_url}{gid_generation_ext_url}", 
+        f"{url}{gid_ext_url}", 
         headers=request_headers
         )
     data = resp.json()
@@ -36,25 +47,26 @@ def get_gid(request_headers: dict, stop: str, municipality: str, api_url: str) -
         if data['results'][i]['locationType'] == 'stoparea':
             actual_stops.append(data['results'][i])     
     for i in actual_stops:
-        if (f'{stop.capitalize()}, {municipality.capitalize()}') in i['name']:
+        if (f'{stop.title()}, {municipality.title()}') in i['name']:
             gid = i['gid']
-            print(f"GID: {gid}")
         else:
             pass
     return gid
 
 
-
-
-
-def get_departures_data(gid: str | int, limit: int, connection_url: str, request_headers: dict) -> list:
+def get_departures_data(
+        gid: str | int, 
+        limit: int, 
+        url: str, 
+        request_headers: dict
+        ) -> list:
     """
     Fetches departure data and returns all results as a list of dictionaries.
     One dictionary per departure, len = limit.
     """
-    get_departures_url = f"/stop-areas/{gid}/departures?limit={limit}"
+    dep_ext_url = fr"/stop-areas/{gid}/departures?limit={limit}"
     departures_response = requests.get(
-        f"{connection_url}{get_departures_url}", 
+        f"{url}{dep_ext_url}", 
         headers=request_headers
         )
     res = departures_response.json()['results']
@@ -62,23 +74,8 @@ def get_departures_data(gid: str | int, limit: int, connection_url: str, request
 
 
 
-### The returned dictionary needs to contain;
-# bus number
-# direction
-# planned departure
-# est departure
-# time until departure
 
-# For the new stuff, the HTML-template needs to be ammended, 
-# so raincheck on that.
-
-# Time until departure needs to be calculated somehow.
-# in the previous verison, a DT-object was created by extracting
-# year, month, day, and so on and coverting them into INT and
-# using these ints as arguments when creating the DT-object.
-# Can this be done in a better way?
-
-def prepare_departures_data(data: list, limit: int) -> list:
+def prepare_departures_data(data: list) -> list:
     deps_list = []
     now = datetime.now()
     for i in range(0, len(data)):
@@ -95,9 +92,11 @@ def prepare_departures_data(data: list, limit: int) -> list:
 
         planned_departure = pd.to_datetime(data[i]["plannedTime"]).tz_localize(None)
         est_departure = pd.to_datetime(data[i]["estimatedOtherwisePlannedTime"]).tz_localize(None)
-        min_until_dep = math.floor(((est_departure - now).total_seconds()/60))
+        min_until_dep = round((((est_departure - now).total_seconds()/60))) # this or math.floor?
         if min_until_dep < 1:
             min_until_dep = "Nu"
+        else:
+            min_until_dep = f"{min_until_dep} min"
 
         deps_list.append(
             {'Short_name': short_name,
@@ -105,7 +104,8 @@ def prepare_departures_data(data: list, limit: int) -> list:
             'Planned_departure_str': planned_departure.strftime("%H:%M"),
             'Est_departure_str': est_departure.strftime("%H:%M"),
             'Leaves_in': min_until_dep,
-            #Following is metadata, not meant top be displayed
+
+            # Following is metadata, not meant top be displayed
             "colour": background_colour,
             "text_colour": text_colour,
             "border_colour": border_colour

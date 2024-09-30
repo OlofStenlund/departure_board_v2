@@ -1,17 +1,15 @@
 import jwt
 import requests
-import os
-import json
 
-from time import sleep
 from datetime import datetime, timedelta
 from env_handling import *
+from time import sleep
 
 
 
-def decode_token(token) -> dict:
+def decode_token(token: jwt) -> dict:
     """
-    Takes a json web token and decodes it.
+    Decodes json web token.
     """
     try:
         decoded_token = jwt.decode(
@@ -44,14 +42,14 @@ def get_token_expiry(decoded_token: dict) -> float:
         return 0
 
 
-def request_token(base_url: str, token_generation_headers: dict) -> str:
+def request_token(url: str, token_generation_headers: dict) -> str:
     """
-    Requests a new token from the API using credentials stored in dotenv environment.
-    Note that requesting a new token shoul ONLY be done when a valid token is no longer 
+    Requests a new token from the API using credentials stored in dotenv file.
+    Note that requesting a new token should ONLY be done when a valid token is no longer 
     available, as requesting new tokens too often can cause you to be blocked from using the API.
     """
     response = requests.post(
-        url = base_url, 
+        url = url, 
         data='grant_type=client_credentials', 
         headers = token_generation_headers
         )
@@ -64,14 +62,17 @@ def check_token_validity(expiry_seconds: int | float) -> bool:
     try:
         if expiry_seconds > 3:
             return True
-    # elif expiry_seconds <= 3:
         else:
             return False
     except:
         return False
 
 
-def generate_new_token(env_path: str,  base_url: str, headers: dict):
+def generate_new_token(
+        env_path: str, 
+        url: str, 
+        headers: dict
+        ) -> None:
     """
     Awaits the current token to run out, thereafter generates a new token asn stores in the .env-file.
 
@@ -81,7 +82,10 @@ def generate_new_token(env_path: str,  base_url: str, headers: dict):
     """
     print("Getting new token")
     sleep(4)
-    new_token = request_token(base_url=base_url, token_generation_headers=headers)
+    new_token = request_token(
+        url=url, 
+        token_generation_headers=headers
+        )
     env_vars = read_env_vars(
         env_path=env_path
         )
