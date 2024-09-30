@@ -12,7 +12,7 @@ More info can be found here: https://pypi.org/project/python-dotenv/<p>
 TODO:<p>
 ~~1: Create automatic updating~~<p>
 2: Add features such as "Läge" and "Handikapsanpassad"<p>
-3: Add colour coding to routes<p>~~
+~~3: Add colour coding to routes<p>~~
 <br><br>
 Contents:<p>
 **1: api.py<p>**
