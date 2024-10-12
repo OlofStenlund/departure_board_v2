@@ -1,5 +1,7 @@
+import locale
 import json
 import os
+
 from datetime import datetime
 from departure_requests import *
 from env_handling import *
@@ -84,15 +86,18 @@ def main(stop: str, municipality: str):
         current_time = {
             "year": current_year, 
             "month_no": current_month, 
-            "month_name": current_month_name, 
+            "month_name": current_month_name.capitalize(), 
             "week": current_week, 
             "day_no": current_day, 
-            "day_name": current_day_name, 
+            "day_name": current_day_name.capitalize(), 
             "hour": current_hour, 
             "minute": current_minute
             }
         return current_time
-
+    
+    loc = locale.getlocale()
+    loc_code = loc[0]
+    locale.setlocale(category=locale.LC_TIME, locale=loc_code)
     times = get_current_times(datetime.now())
 
     return prep_data, times
